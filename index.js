@@ -169,16 +169,16 @@ app.put('/user/:email', async (req, res) => {
 // }); 
       
 // // get users by their email address and make an user admin 
-// app.get('/users/:email', async(req,res)=>{
-//   const email = req.params.email;
-//   const query = {email:email};
-//   const user = await userscollection.findOne(query);
-//   let isAdmin= false;
-//   if(user?.role==='admin'){
-// isAdmin=true;
-//   }
-//   res.json({admin:isAdmin});
-// })
+app.get('/users/:email', async(req,res)=>{
+  const email = req.params.email;
+  const query = {email:email};
+  const user = await userCollection.findOne(query);
+  let isAdmin= false;
+  if(user?.role==='admin'){
+isAdmin=true;
+  }
+  res.json({admin:isAdmin});
+})
 
        // UPSERT USER 
 // app.put('/users', async (req, res)=>{
@@ -191,14 +191,14 @@ app.put('/user/:email', async (req, res) => {
 //  })
 
 // // make an user admin 
-// app.put('/users/admin', async (req, res)=>{
-//   const user = req.body;
-//   console.log('put', user);
-//   const filter = {email: user.email};
-//   const updateDoc = {$set: {role:'admin'}};
-//   const result = await userscollection.updateOne(filter,updateDoc);
-//   res.json(result);
-// })
+app.put('/users/admin', async (req, res)=>{
+  const user = req.body;
+  console.log('put', user);
+  const filter = {email: user.email};
+  const updateDoc = {$set: {role:'admin'}};
+  const result = await userCollection.updateOne(filter,updateDoc);
+  res.json(result);
+})
 
 // payment gateway 
 // app.post('/create-payment-intent', async (req, res) => {
