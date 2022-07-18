@@ -67,7 +67,23 @@ app.delete('/booking/:id', async(req,res) => {
   const result = await bookingcollection.deleteOne(query);
   res.send(result);
   })
-
+  app.get('/booking/:id', async(req,res)=>{
+    const id = req.params.id;
+    const query = {_id:ObjectId(id)};
+    const result = await bookingcollection.findOne(query);
+    res.send(result);
+})
+  app.put('/booking/:id', async(req,res)=>{
+    const id = req.params.id;
+    const updated = req.body;
+    const filter = {_id:ObjectId(id)};
+    const options = {upsert:true};
+    const updatedDoc = {
+        $set:updated
+    }
+    const result = await bookingcollection.updateOne(filter,updatedDoc,options);
+    res.send(result);
+})
 
 // GET API FOR SHOWING INDIVIDUAL ROOM DETAILS 
 app.get('/parts/:id', async(req,res)=>{
