@@ -14,6 +14,7 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lx750.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -45,7 +46,7 @@ app.get('/parts', async(req, res) => {
     const parts = await cursor.toArray();
     res.send(parts);
 })
-app.get('/user',  async (req, res) => {
+app.get('/user', verifyJWT, async (req, res) => {
   const users = await userCollection.find().toArray();
   res.send(users);
 });
@@ -53,7 +54,7 @@ app.get('/user',  async (req, res) => {
 
 
 // GET API FOR my BOOKED ROOMS & all booked rooms
-app.get('/booking', async(req, res) => {
+app.get('/booking', verifyJWT, async(req, res) => {
   let query = {};
   const email = req.query.email;
   const authorization = req.headers.authorization;
@@ -161,19 +162,23 @@ app.put('/user/:email', async (req, res) => {
  
 
 // // make an user admin 
-app.put('/users/admin', async (req, res)=>{
-  const user = req.body;
-  
-  console.log('put', user);
-  const requester = await userCollection.findOne({email:user});
- 
-    const filter = {email: user.email};
-    const updateDoc = {$set: {role:'admin'}};
-    const result = await userCollection.updateOne(filter,updateDoc);
-    res.json(result);
-  
-  
- })
+app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+  const email = req.params.email;
+  const requester = req.decoded.email;
+  const requesterAccount = await userCollection.findOne({ email: requester });
+  if (requesterAccount.role === 'admin') {
+    const filter = { email: email };
+    const updateDoc = {
+      $set: { role: 'admin' },
+    };
+    const result = await userCollection.updateOne(filter, updateDoc);
+    res.send(result);
+  }
+  else{
+    res.status(403).send({message: 'forbidden'});
+  }
+
+})
 
 // payment gateway 
 // app.post('/create-payment-intent', async (req, res) => {
