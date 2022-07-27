@@ -124,7 +124,7 @@ app.post('/booking', async(req, res) => {
         
 }) 
 
-app.put('/user/:email', async (req, res) => {
+app.put('/user/:email',  async (req, res) => {
   const email = req.params.email;
   const user = req.body;
   const filter = { email: email };
@@ -133,7 +133,7 @@ app.put('/user/:email', async (req, res) => {
     $set: user,
   };
   const result = await userCollection.updateOne(filter, updateDoc, options);
- const token = jwt.sign({email:email},process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
+ const token = jwt.sign({email:email},process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '30d' })
   res.send({ result,token });
 })
 
@@ -147,19 +147,8 @@ app.put('/user/:email', async (req, res) => {
 
 // }); 
       
-// // get users by their email address and make an user admin 
-// app.put('/users/admin', async(req,res)=>{
-//   const email = req.params.email;
-//   const query = {email:email};
-//   const user = await userCollection.findOne(query);
-//   let isAdmin= false;
-//   if(user?.role==='admin'){
-// isAdmin=true;
-//   }
-//   res.json({admin:isAdmin});
-// })
 
-app.get('/admin/:email', async(req, res) =>{
+app.get('/admin/:email', verifyJWT, async(req, res) =>{
   const email = req.params.email;
   const user = await userCollection.findOne({email: email});
   const isAdmin = user.role === 'admin';
