@@ -94,36 +94,8 @@ app.get('/parts/:id', async(req,res)=>{
 
 })
 
-// app.get('/cars/:id', async(req,res)=>{
-//   const id = req.params.id;
-//   const payment = req.body;
-//   const filter = {_id:ObjectId(id)};
-//   const updateDoc = {
-//     $set:{
-//       payment:payment
-//     }
-//   };
 
-//   const result = await carscollection.findOne(updateDoc);
-//   res.json(result);
 
-// })
-// // get api for all reviews 
-// app.get('/reviews', async(req,res)=>{
-//   const cursor = reviewCollection.find({});
-//   const reviews = await cursor.toArray();
-//   res.send(reviews);
-// });
-
-// post api for posting reviews 
-// app.post('/reviews', async(req,res)=>{
-//   const review = req.body;
-//   console.log('hit the post api',review);
-
-//   const result = await reviewCollection.insertOne(review);
-//    res.json(result)
-
-// });
 
 // //   POST API TO ADD clock 
 app.post('/parts', async(req, res) => {
@@ -134,24 +106,9 @@ app.post('/parts', async(req, res) => {
     res.json(result);
           
   })
-// //   POST API TO ADD special 
-// app.post('/special', async(req, res) => {
-//     const newhotel = req.body; 
-//     const result = await specialcollection.insertOne(newhotel);
-//     console.log('hitting the post',req.body);
-//     console.log('added hotel', result)
-//     res.json(result);
-          
-//   })
 
-// //   POST API TO ADD reservation
-// app.post('/reserve', async(req, res) => {
-//   const newhotel = req.body; 
-//   const result = await reservecollection.insertOne(newhotel);
-//   console.log('hitting the post',req.body);
-//   console.log('added hotel', result)
-//   res.json(result);
-// })
+
+
   // POST API TO ADD BOOKING OF ANY ROOM 
 app.post('/booking', async(req, res) => {
   const newroom = req.body; 
@@ -173,13 +130,7 @@ app.put('/user/:email', async (req, res) => {
  
   res.send({ result });
 })
-//   // POST API FOR USERS 
-// app.post('/users', async(req, res)=>{
-//    const user = req.body;
-//   const result = await userscollection.insertOne(user);
-//   console.log('added user', result)
-//    res.json(result);
-//        })
+
 //        // post api for posting reviews 
 // app.post('/reviews', async(req,res)=>{
 //   const review = req.body;
@@ -202,15 +153,7 @@ isAdmin=true;
   res.json({admin:isAdmin});
 })
 
-       // UPSERT USER 
-// app.put('/users', async (req, res)=>{
-//    const user = req.body;
-//   const filter = {email: user.email};
-//    const options = {upsert: true };
-//    const updatedoc = {$set: user};
-//    const result = await userscollection.updateOne(filter,updatedoc,options);
-//    res.json(result);
-//  })
+ 
 
 // // make an user admin 
 app.put('/users/admin', async (req, res)=>{
