@@ -159,7 +159,13 @@ app.put('/user/:email', async (req, res) => {
 //   res.json({admin:isAdmin});
 // })
 
- 
+app.get('/admin/:email', async(req, res) =>{
+  const email = req.params.email;
+  const user = await userCollection.findOne({email: email});
+  const isAdmin = user.role === 'admin';
+  res.send({admin: isAdmin})
+})
+
 
 // // make an user admin 
 app.put('/user/admin/:email', verifyJWT, async (req, res) => {
