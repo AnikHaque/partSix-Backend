@@ -1,5 +1,6 @@
 const express = require('express')
 const { MongoClient } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
@@ -35,24 +36,15 @@ app.get('/user',  async (req, res) => {
   const users = await userCollection.find().toArray();
   res.send(users);
 });
-            // GET API FOR SHOWING ALL reservation
-      // GET API FOR SHOWING ALL specials
-// app.get('/special', async(req, res) => {
-//     const cursor = specialcollection.find({});
-//     const hotels = await cursor.toArray();
-//     res.send(hotels);
-// })
-            // GET API FOR SHOWING ALL reservation
-// app.get('/reserve', async(req, res) => {
-//   const cursor = reservecollection.find({});
-//   const hotels = await cursor.toArray();
-//   res.send(hotels);
-// })
+  
+
 
 // GET API FOR my BOOKED ROOMS & all booked rooms
 app.get('/booking', async(req, res) => {
   let query = {};
   const email = req.query.email;
+  const authorization = req.headers.authorization;
+  console.log('auth header',authorization);
 if(email){
   query = {email: email};
 }
@@ -127,8 +119,8 @@ app.put('/user/:email', async (req, res) => {
     $set: user,
   };
   const result = await userCollection.updateOne(filter, updateDoc, options);
- 
-  res.send({ result });
+ const token = jwt.sign({email:email},process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
+  res.send({ result,token });
 })
 
 //        // post api for posting reviews 
@@ -142,28 +134,33 @@ app.put('/user/:email', async (req, res) => {
 // }); 
       
 // // get users by their email address and make an user admin 
-app.get('/users/:email', async(req,res)=>{
-  const email = req.params.email;
-  const query = {email:email};
-  const user = await userCollection.findOne(query);
-  let isAdmin= false;
-  if(user?.role==='admin'){
-isAdmin=true;
-  }
-  res.json({admin:isAdmin});
-})
+// app.put('/users/admin', async(req,res)=>{
+//   const email = req.params.email;
+//   const query = {email:email};
+//   const user = await userCollection.findOne(query);
+//   let isAdmin= false;
+//   if(user?.role==='admin'){
+// isAdmin=true;
+//   }
+//   res.json({admin:isAdmin});
+// })
 
  
 
 // // make an user admin 
 app.put('/users/admin', async (req, res)=>{
   const user = req.body;
+  
   console.log('put', user);
-  const filter = {email: user.email};
-  const updateDoc = {$set: {role:'admin'}};
-  const result = await userCollection.updateOne(filter,updateDoc);
-  res.json(result);
-})
+  const requester = await userCollection.findOne({email:user});
+ 
+    const filter = {email: user.email};
+    const updateDoc = {$set: {role:'admin'}};
+    const result = await userCollection.updateOne(filter,updateDoc);
+    res.json(result);
+  
+  
+ })
 
 // payment gateway 
 // app.post('/create-payment-intent', async (req, res) => {
