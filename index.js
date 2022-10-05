@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 const app = express()
 // const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const port = process.env.PORT || 5000;
@@ -38,6 +40,7 @@ async function run() {
         const bookingcollection = database.collection("booking");
 
          const userCollection = database.collection("user");
+         const paymentCollection = database.collection("payments");
     //      const reviewCollection = database.collection("reviews");
    
       // GET API FOR SHOWING ALL clocks
@@ -67,17 +70,36 @@ if(email){
     res.send(room);
 })
 
+
+app.get('/booking/:id',  async(req,res)=>{
+  const id = req.params.id;
+  const query= {_id:ObjectId(id)};
+  const booking = await bookingcollection.findOne(query);
+  res.send(booking);
+})
+
 app.delete('/booking/:id', async(req,res) => {
   const id = req.params.id;
   const query = {_id:ObjectId(id)};
   const result = await bookingcollection.deleteOne(query);
   res.send(result);
   })
-  app.get('/booking/:id', async(req,res)=>{
+
+  
+
+  app.patch('/booking/:id', async(req,res)=>{
     const id = req.params.id;
-    const query = {_id:ObjectId(id)};
-    const result = await bookingcollection.findOne(query);
-    res.send(result);
+    const payment = req.body;
+    const filter = {_id:ObjectId(id)};
+    const updatedDoc = {
+        $set:{
+          paid:true,
+          transactionId:payment.transactionId
+        }
+    }
+    const result = await paymentCollection.insertOne(payment);
+    const updatedbooking = await bookingcollection.updateOne(filter,updatedDoc);
+    res.send(updatedDoc);
 })
   app.put('/booking/:id', async(req,res)=>{
     const id = req.params.id;
@@ -89,6 +111,23 @@ app.delete('/booking/:id', async(req,res) => {
     }
     const result = await bookingcollection.updateOne(filter,updatedDoc,options);
     res.send(result);
+})
+
+
+app.post('/create-payment-intent', verifyJWT, async(req,res)=>{
+  const service = req.body;
+  const price = service.price;
+  const amount = price * 100;
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: "usd",
+    payment_method_types:["card"]
+    
+  });
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
 })
 
 // GET API FOR SHOWING INDIVIDUAL ROOM DETAILS 
