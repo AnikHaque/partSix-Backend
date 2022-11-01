@@ -37,9 +37,8 @@ async function run() {
       const database = client.db("partsix");
        const hospitaldoctorsCollection = database.collection("hospitaldoctors");
        const partscollection = database.collection("parts");
-    //    const specialcollection = database.collection("special");
         const hospitaldoctorsbookingCollection = database.collection("hospitaldoctorsbooking");
-
+        const newscollection = database.collection("news");
          const userCollection = database.collection("user");
          const paymentCollection = database.collection("payments");
     //      const reviewCollection = database.collection("reviews");
@@ -200,6 +199,14 @@ app.get('/hospitaldoctors/:id', async(req,res)=>{
 app.post('/parts', async(req, res) => {
     const newtool = req.body; 
     const result = await partscollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/news', async(req, res) => {
+    const newtool = req.body; 
+    const result = await newscollection.insertOne(newtool);
     console.log('hitting the post',req.body);
     console.log('added hotel', result)
     res.json(result);
