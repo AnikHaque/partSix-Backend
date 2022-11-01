@@ -57,6 +57,12 @@ app.get('/parts', async(req, res) => {
     const parts = await cursor.toArray();
     res.send(parts);
 })
+
+app.get('/hospitaldoctorsbooking', async(req, res) => {
+    const cursor = hospitaldoctorsbookingCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
 app.get('/user', verifyJWT, async (req, res) => {
   const users = await userCollection.find().toArray();
   res.send(users);
@@ -65,23 +71,22 @@ app.get('/user', verifyJWT, async (req, res) => {
 
 
 // GET API FOR my BOOKED ROOMS & all booked rooms
-app.get('/hospitaldoctorsbooking', verifyJWT, async(req, res) => {
-  let query = {};
-  const patient = req.query.patient;
-  const authorization = req.headers.authorization;
-  console.log('auth header',authorization);
-if(patient){
-  query = {patient: patient};
-}
-    const cursor = hospitaldoctorsbookingCollection.find(query);
-    const room = await cursor.toArray();
-    res.send(room);
-})
+// app.get('/hospitaldoctorsbooking', verifyJWT, async(req, res) => {
+//   let query = {};
+//   const patient = req.query.patient;
+//   const authorization = req.headers.authorization;
+//   console.log('auth header',authorization);
+// if(patient){
+//   query = {patient: patient};
+// }
+//     const cursor = hospitaldoctorsbookingCollection.find(query);
+//     const room = await cursor.toArray();
+//     res.send(room);
+// })
 
 
 app.get('/available', async(req,res) => {
-  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
-   
+  
   const date = req.query.date || 'Oct 26, 2022';
   // step 1 
   const services = await hospitaldoctorsCollection.find().toArray();
@@ -101,10 +106,10 @@ app.get('/available', async(req,res) => {
   res.send(services);
 })
 
-app.get('/booking/:id',  async(req,res)=>{
+app.get('/hospitaldoctorsbooking/:id',  async(req,res)=>{
   const id = req.params.id;
   const query= {_id:ObjectId(id)};
-  const booking = await bookingcollection.findOne(query);
+  const booking = await hospitaldoctorsbookingCollection.findOne(query);
   res.send(booking);
 })
 
@@ -144,17 +149,17 @@ app.delete('/hospitaldoctorsbooking/:id', async(req,res) => {
 })
 
 
-app.post('/hospitaldoctorsbooking',verifyJWT, async(req, res) => {
-  const booking = req.body;
-  console.log(booking);
-  const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
-  const exists = await hospitaldoctorsbookingCollection.findOne(query);
-  if(exists){
-      return res.send({success:false,booking:exists});
-  }
-  const result = await hospitaldoctorsbookingCollection.insertOne(booking);
- return res.send({success:true,result});
-});
+// app.post('/hospitaldoctorsbooking',verifyJWT, async(req, res) => {
+//   const booking = req.body;
+//   console.log(booking);
+//   const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
+//   const exists = await hospitaldoctorsbookingCollection.findOne(query);
+//   if(exists){
+//       return res.send({success:false,booking:exists});
+//   }
+//   const result = await hospitaldoctorsbookingCollection.insertOne(booking);
+//  return res.send({success:true,result});
+// });
 
 app.post('/create-payment-intent', verifyJWT, async(req,res)=>{
   const service = req.body;
@@ -213,9 +218,9 @@ app.post('/hospitaldoctors', async(req, res) => {
 
 
   // POST API TO ADD BOOKING OF ANY ROOM 
-app.post('/booking', async(req, res) => {
+app.post('/hospitaldoctorsbooking', async(req, res) => {
   const newroom = req.body; 
-  const result = await bookingcollection.insertOne(newroom);
+  const result = await hospitaldoctorsbookingCollection.insertOne(newroom);
   console.log('hitting the post',req.body);      
   res.json(result);
         
