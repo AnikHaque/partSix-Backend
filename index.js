@@ -35,15 +35,23 @@ async function run() {
     try {
       await client.connect();
       const database = client.db("partsix");
+       const hospitaldoctorsCollection = database.collection("hospitaldoctors");
        const partscollection = database.collection("parts");
     //    const specialcollection = database.collection("special");
-        const bookingcollection = database.collection("booking");
+        const hospitaldoctorsbookingCollection = database.collection("hospitaldoctorsbooking");
 
          const userCollection = database.collection("user");
          const paymentCollection = database.collection("payments");
     //      const reviewCollection = database.collection("reviews");
    
+
       // GET API FOR SHOWING ALL clocks
+app.get('/hospitaldoctors', async(req, res) => {
+    const cursor = hospitaldoctorsCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+
 app.get('/parts', async(req, res) => {
     const cursor = partscollection.find({});
     const parts = await cursor.toArray();
@@ -57,19 +65,41 @@ app.get('/user', verifyJWT, async (req, res) => {
 
 
 // GET API FOR my BOOKED ROOMS & all booked rooms
-app.get('/booking', verifyJWT, async(req, res) => {
+app.get('/hospitaldoctorsbooking', verifyJWT, async(req, res) => {
   let query = {};
-  const email = req.query.email;
+  const patient = req.query.patient;
   const authorization = req.headers.authorization;
   console.log('auth header',authorization);
-if(email){
-  query = {email: email};
+if(patient){
+  query = {patient: patient};
 }
-    const cursor = bookingcollection.find(query);
+    const cursor = hospitaldoctorsbookingCollection.find(query);
     const room = await cursor.toArray();
     res.send(room);
 })
 
+
+app.get('/available', async(req,res) => {
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+   
+  const date = req.query.date || 'Oct 26, 2022';
+  // step 1 
+  const services = await hospitaldoctorsCollection.find().toArray();
+  // step 2 
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const query = {date:date};
+  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+  // step 3 
+  services.forEach(service =>{
+    const servicebookings = bookings.filter(b=>b.treatment === service.name);
+    const booked = servicebookings.map(s=> s.slot);
+    const available = service.slots.filter(s=>!booked.includes(s));
+    service.available = available;
+    // service.booked = booked;
+
+  })
+  res.send(services);
+})
 
 app.get('/booking/:id',  async(req,res)=>{
   const id = req.params.id;
@@ -78,16 +108,16 @@ app.get('/booking/:id',  async(req,res)=>{
   res.send(booking);
 })
 
-app.delete('/booking/:id', async(req,res) => {
+app.delete('/hospitaldoctorsbooking/:id', async(req,res) => {
   const id = req.params.id;
   const query = {_id:ObjectId(id)};
-  const result = await bookingcollection.deleteOne(query);
+  const result = await hospitaldoctorsbookingCollection.deleteOne(query);
   res.send(result);
   })
 
   
 
-  app.patch('/booking/:id', async(req,res)=>{
+  app.patch('/hospitaldoctorsbooking/:id', async(req,res)=>{
     const id = req.params.id;
     const payment = req.body;
     const filter = {_id:ObjectId(id)};
@@ -98,10 +128,10 @@ app.delete('/booking/:id', async(req,res) => {
         }
     }
     const result = await paymentCollection.insertOne(payment);
-    const updatedbooking = await bookingcollection.updateOne(filter,updatedDoc);
+    const updatedbooking = await hospitaldoctorsbookingCollection.updateOne(filter,updatedDoc);
     res.send(updatedDoc);
 })
-  app.put('/booking/:id', async(req,res)=>{
+  app.put('/hospitaldoctorsbooking/:id', async(req,res)=>{
     const id = req.params.id;
     const updated = req.body;
     const filter = {_id:ObjectId(id)};
@@ -109,10 +139,22 @@ app.delete('/booking/:id', async(req,res) => {
     const updatedDoc = {
         $set:updated
     }
-    const result = await bookingcollection.updateOne(filter,updatedDoc,options);
+    const result = await hospitaldoctorsbookingCollection.updateOne(filter,updatedDoc,options);
     res.send(result);
 })
 
+
+app.post('/hospitaldoctorsbooking',verifyJWT, async(req, res) => {
+  const booking = req.body;
+  console.log(booking);
+  const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
+  const exists = await hospitaldoctorsbookingCollection.findOne(query);
+  if(exists){
+      return res.send({success:false,booking:exists});
+  }
+  const result = await hospitaldoctorsbookingCollection.insertOne(booking);
+ return res.send({success:true,result});
+});
 
 app.post('/create-payment-intent', verifyJWT, async(req,res)=>{
   const service = req.body;
@@ -138,6 +180,13 @@ app.get('/parts/:id', async(req,res)=>{
   res.json(hotel);
 
 })
+app.get('/hospitaldoctors/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id:ObjectId(id)};
+  const hotel = await hospitaldoctorsCollection.findOne(query);
+  res.json(hotel);
+
+})
 
 
 
@@ -146,6 +195,15 @@ app.get('/parts/:id', async(req,res)=>{
 app.post('/parts', async(req, res) => {
     const newtool = req.body; 
     const result = await partscollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+
+app.post('/hospitaldoctors', async(req, res) => {
+    const newtool = req.body; 
+    const result = await hospitaldoctorsCollection.insertOne(newtool);
     console.log('hitting the post',req.body);
     console.log('added hotel', result)
     res.json(result);
