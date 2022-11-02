@@ -445,17 +445,6 @@ app.put('/user/:email',  async (req, res) => {
   res.send({ result,token });
 })
 
-//        // post api for posting reviews 
-// app.post('/reviews', async(req,res)=>{
-//   const review = req.body;
-//   console.log('hit the post api',review);
-
-//   const result = await reviewCollection.insertOne(review);
-//    res.json(result)
-
-// }); 
-      
-
 app.get('/admin/:email', verifyJWT, async(req, res) =>{
   const email = req.params.email;
   const user = await userCollection.findOne({email: email});
@@ -484,18 +473,18 @@ app.put('/user/admin/:email', verifyJWT, async (req, res) => {
 })
 
 // payment gateway 
-// app.post('/create-payment-intent', async (req, res) => {
-//   const paymentInfo = req.body;
-// const amount = paymentInfo.price*100;
-//   // Create a PaymentIntent with the order amount and currency
-//   const paymentIntent = await stripe.paymentIntents.create({
-//     amount: amount,
-//     currency: 'usd',
-//     payment_method_types: ['card']
-//   });
+app.post('/create-payment-intent', async (req, res) => {
+  const paymentInfo = req.body;
+const amount = paymentInfo.price*100;
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    payment_method_types: ['card']
+  });
 
-//   res.json({clientSecret: paymentIntent.client_secret});
-// });
+  res.json({clientSecret: paymentIntent.client_secret});
+});
 
     } 
     finally {
