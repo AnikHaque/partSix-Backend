@@ -39,9 +39,11 @@ async function run() {
        const partscollection = database.collection("parts");
         const hospitaldoctorsbookingCollection = database.collection("hospitaldoctorsbooking");
         const newscollection = database.collection("news");
+        const ambulancecollection = database.collection("ambulance");
+        const ambookingcollection = database.collection("ambooking");
          const userCollection = database.collection("user");
          const paymentCollection = database.collection("payments");
-    //      const reviewCollection = database.collection("reviews");
+          const reviewCollection = database.collection("reviews");
    
 
       // GET API FOR SHOWING ALL clocks
@@ -50,9 +52,24 @@ app.get('/hospitaldoctors', async(req, res) => {
     const parts = await cursor.toArray();
     res.send(parts);
 })
+app.get('/reviews', async(req, res) => {
+    const cursor = reviewCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
 
 app.get('/parts', async(req, res) => {
     const cursor = partscollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/news', async(req, res) => {
+    const cursor = newscollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/ambulance', async(req, res) => {
+    const cursor = ambulancecollection.find({});
     const parts = await cursor.toArray();
     res.send(parts);
 })
@@ -184,6 +201,13 @@ app.get('/parts/:id', async(req,res)=>{
   res.json(hotel);
 
 })
+app.get('/news/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id:ObjectId(id)};
+  const hotel = await newscollection.findOne(query);
+  res.json(hotel);
+
+})
 app.get('/hospitaldoctors/:id', async(req,res)=>{
   const id = req.params.id;
   const query = {_id:ObjectId(id)};
@@ -199,6 +223,30 @@ app.get('/hospitaldoctors/:id', async(req,res)=>{
 app.post('/parts', async(req, res) => {
     const newtool = req.body; 
     const result = await partscollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/ambulance', async(req, res) => {
+    const newtool = req.body; 
+    const result = await ambulancecollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/reviews', async(req, res) => {
+    const newtool = req.body; 
+    const result = await reviewCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/ambooking', async(req, res) => {
+    const newtool = req.body; 
+    const result = await ambookingcollection.insertOne(newtool);
     console.log('hitting the post',req.body);
     console.log('added hotel', result)
     res.json(result);
