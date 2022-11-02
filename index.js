@@ -41,17 +41,120 @@ async function run() {
         const newscollection = database.collection("news");
         const ambulancecollection = database.collection("ambulance");
         const ambookingcollection = database.collection("ambooking");
+        const urologyCollection = database.collection("urology");
+        const orthopedicCollection = database.collection("orthopedic");
+        const cardiacCollection = database.collection("cardiac");
+        const neurologyCollection = database.collection("neurology");
+        const dentistCollection = database.collection("dentistry");
+        const ultraCollection = database.collection("ultra");
          const userCollection = database.collection("user");
          const paymentCollection = database.collection("payments");
           const reviewCollection = database.collection("reviews");
-   
+          const bloodDonerCollection  = database.collection("bloodDoner");
 
-      // GET API FOR SHOWING ALL clocks
+   
+// post api 
+app.post('/urology', async(req, res) => {
+  const newtool = req.body; 
+  const result = await urologyCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/orthopedic', async(req, res) => {
+  const newtool = req.body; 
+  const result = await orthopedicCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/cardiac', async(req, res) => {
+  const newtool = req.body; 
+  const result = await cardiacCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/neurology', async(req, res) => {
+  const newtool = req.body; 
+  const result = await neurologyCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/dentistry', async(req, res) => {
+  const newtool = req.body; 
+  const result = await dentistCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/ultra', async(req, res) => {
+  const newtool = req.body; 
+  const result = await ultraCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+
+app.post('/bloodDoner', async (req, res) => {
+  const donerInfo = req.body
+  const result = await bloodDonerCollection.insertOne(donerInfo);
+  res.send(result);
+})
+// Blood Doner List Get
+app.get('/bloodDonerList', async (req, res) => {
+  const query = {}
+  const cursor = bloodDonerCollection.find(query);
+  const doners = await cursor.toArray();
+  res.send(doners);
+})
+
+
+
+      // GET API 
 app.get('/hospitaldoctors', async(req, res) => {
     const cursor = hospitaldoctorsCollection.find({});
     const parts = await cursor.toArray();
     res.send(parts);
 })
+app.get('/ultra', async(req, res) => {
+    const cursor = ultraCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/dentistry', async(req, res) => {
+    const cursor = dentistCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/neurology', async(req, res) => {
+    const cursor = neurologyCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/cardiac', async(req, res) => {
+    const cursor = cardiacCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/orthopedic', async(req, res) => {
+    const cursor = orthopedicCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+app.get('/urology', async(req, res) => {
+    const cursor = urologyCollection.find({});
+    const parts = await cursor.toArray();
+    res.send(parts);
+})
+
 app.get('/reviews', async(req, res) => {
     const cursor = reviewCollection.find({});
     const parts = await cursor.toArray();
@@ -239,6 +342,54 @@ app.post('/ambulance', async(req, res) => {
 app.post('/reviews', async(req, res) => {
     const newtool = req.body; 
     const result = await reviewCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/urology', async(req, res) => {
+    const newtool = req.body; 
+    const result = await urologyCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/orthopedic', async(req, res) => {
+    const newtool = req.body; 
+    const result = await orthopedicCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/cardiac', async(req, res) => {
+    const newtool = req.body; 
+    const result = await cardiacCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/neurology', async(req, res) => {
+    const newtool = req.body; 
+    const result = await neurologyCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/dentistry', async(req, res) => {
+    const newtool = req.body; 
+    const result = await dentistCollection.insertOne(newtool);
+    console.log('hitting the post',req.body);
+    console.log('added hotel', result)
+    res.json(result);
+          
+  })
+app.post('/ultra', async(req, res) => {
+    const newtool = req.body; 
+    const result = await ultraCollection.insertOne(newtool);
     console.log('hitting the post',req.body);
     console.log('added hotel', result)
     res.json(result);
