@@ -58,9 +58,18 @@ async function run() {
          const paymentCollection = database.collection("payments");
           const reviewCollection = database.collection("reviews");
           const bloodDonerCollection  = database.collection("bloodDoner");
+          const medicineCollection  = database.collection("medicine");
 
    
 // post api 
+app.post('/medicine', async(req, res) => {
+  const newtool = req.body; 
+  const result = await medicineCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
 app.post('/urology', async(req, res) => {
   const newtool = req.body; 
   const result = await urologyCollection.insertOne(newtool);
@@ -137,6 +146,12 @@ app.get('/bloodDonerList', async (req, res) => {
   const doners = await cursor.toArray();
   res.send(doners);
 })
+app.get('/medicine', async (req, res) => {
+  const query = {}
+  const cursor = medicineCollection.find(query);
+  const doners = await cursor.toArray();
+  res.send(doners);
+})
 app.get('/hospitaldoctors', async(req, res) => {
     const cursor = hospitaldoctorsCollection.find({});
     const parts = await cursor.toArray();
@@ -204,6 +219,12 @@ app.get('/hospitaldoctorsbooking/:id',verifyJWT, async(req, res) => {
    const id = req.params.id;
    const query = {_id: ObjectId(id)};
    const booking = await hospitaldoctorsbookingCollection.findOne(query);
+   res.send(booking);
+})
+app.get('/mdetails/:id', async(req, res) => {
+   const id = req.params.id;
+   const query = {_id: ObjectId(id)};
+   const booking = await medicineCollection.findOne(query);
    res.send(booking);
 })
 app.get('/user', verifyJWT, async (req, res) => {
