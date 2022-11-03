@@ -227,6 +227,18 @@ app.get('/mdetails/:id', async(req, res) => {
    const booking = await medicineCollection.findOne(query);
    res.send(booking);
 })
+app.get('/urodetails/:id', async(req, res) => {
+   const id = req.params.id;
+   const query = {_id: ObjectId(id)};
+   const booking = await urologyCollection.findOne(query);
+   res.send(booking);
+})
+app.get('/orthodetails/:id', async(req, res) => {
+   const id = req.params.id;
+   const query = {_id: ObjectId(id)};
+   const booking = await orthopedicCollection.findOne(query);
+   res.send(booking);
+})
 app.get('/user', verifyJWT, async (req, res) => {
   const users = await userCollection.find().toArray();
   res.send(users);
