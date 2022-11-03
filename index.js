@@ -234,21 +234,6 @@ app.get('/user', verifyJWT, async (req, res) => {
   
 
 
-// GET API FOR my BOOKED ROOMS & all booked rooms
-// app.get('/hospitaldoctorsbooking', verifyJWT, async(req, res) => {
-//   let query = {};
-//   const patient = req.query.patient;
-//   const authorization = req.headers.authorization;
-//   console.log('auth header',authorization);
-// if(patient){
-//   query = {patient: patient};
-// }
-//     const cursor = hospitaldoctorsbookingCollection.find(query);
-//     const room = await cursor.toArray();
-//     res.send(room);
-// })
-
-
 app.get('/available', async(req,res) => {
   
   const date = req.query.date || 'Oct 26, 2022';
