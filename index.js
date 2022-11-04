@@ -55,7 +55,7 @@ async function run() {
           const medicinebookingCollection  = database.collection("medicinebooking");
 
    
-// post api 
+
 app.post('/medicine', async(req, res) => {
   const newtool = req.body; 
   const result = await medicineCollection.insertOne(newtool);
