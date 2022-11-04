@@ -6,14 +6,7 @@ const ObjectId = require('mongodb').ObjectId;
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express()
-const http = require("http")
-const server = http.createServer(app)
-const io = require("socket.io")(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-})
+
 // const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const port = process.env.PORT || 5000;
 
@@ -59,12 +52,21 @@ async function run() {
           const reviewCollection = database.collection("reviews");
           const bloodDonerCollection  = database.collection("bloodDoner");
           const medicineCollection  = database.collection("medicine");
+          const medicinebookingCollection  = database.collection("medicinebooking");
 
    
 // post api 
 app.post('/medicine', async(req, res) => {
   const newtool = req.body; 
   const result = await medicineCollection.insertOne(newtool);
+  console.log('hitting the post',req.body);
+  console.log('added hotel', result)
+  res.json(result);
+        
+})
+app.post('/medicinebooking', async(req, res) => {
+  const newtool = req.body; 
+  const result = await medicinebookingCollection.insertOne(newtool);
   console.log('hitting the post',req.body);
   console.log('added hotel', result)
   res.json(result);
@@ -146,6 +148,12 @@ app.get('/bloodDonerList', async (req, res) => {
   const doners = await cursor.toArray();
   res.send(doners);
 })
+app.get('/medicinebooking', async (req, res) => {
+  const query = {}
+  const cursor = medicinebookingCollection.find(query);
+  const doners = await cursor.toArray();
+  res.send(doners);
+})
 app.get('/medicine', async (req, res) => {
   const query = {}
   const cursor = medicineCollection.find(query);
@@ -215,6 +223,12 @@ app.get('/hospitaldoctorsbooking', async(req, res) => {
     const parts = await cursor.toArray();
     res.send(parts);
 })
+app.get('/medicinebooking/:id',verifyJWT, async(req, res) => {
+   const id = req.params.id;
+   const query = {_id: ObjectId(id)};
+   const booking = await medicinebookingCollection.findOne(query);
+   res.send(booking);
+})
 app.get('/hospitaldoctorsbooking/:id',verifyJWT, async(req, res) => {
    const id = req.params.id;
    const query = {_id: ObjectId(id)};
@@ -246,26 +260,26 @@ app.get('/user', verifyJWT, async (req, res) => {
   
 
 
-app.get('/available', async(req,res) => {
+// app.get('/available', async(req,res) => {
   
-  const date = req.query.date || 'Oct 26, 2022';
-  // step 1 
-  const services = await hospitaldoctorsCollection.find().toArray();
-  // step 2 
-  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
-  const query = {date:date};
-  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
-  // step 3 
-  services.forEach(service =>{
-    const servicebookings = bookings.filter(b=>b.treatment === service.name);
-    const booked = servicebookings.map(s=> s.slot);
-    const available = service.slots.filter(s=>!booked.includes(s));
-    service.available = available;
-    // service.booked = booked;
+//   const date = req.query.date || 'Oct 26, 2022';
+//   // step 1 
+//   const services = await hospitaldoctorsCollection.find().toArray();
+//   // step 2 
+//   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+//   const query = {date:date};
+//   const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+//   // step 3 
+//   services.forEach(service =>{
+//     const servicebookings = bookings.filter(b=>b.treatment === service.name);
+//     const booked = servicebookings.map(s=> s.slot);
+//     const available = service.slots.filter(s=>!booked.includes(s));
+//     service.available = available;
+//     // service.booked = booked;
 
-  })
-  res.send(services);
-})
+//   })
+//   res.send(services);
+// })
 
 app.get('/hospitaldoctorsbooking/:id',  async(req,res)=>{
   const id = req.params.id;
@@ -282,21 +296,6 @@ app.delete('/hospitaldoctorsbooking/:id', async(req,res) => {
   })
 
   
-
-//   app.patch('/hospitaldoctorsbooking/:id', async(req,res)=>{
-//     const id = req.params.id;
-//     const payment = req.body;
-//     const filter = {_id:ObjectId(id)};
-//     const updatedDoc = {
-//         $set:{
-//           paid:true,
-//           transactionId:payment.transactionId
-//         }
-//     }
-//     const result = await paymentCollection.insertOne(payment);
-//     const updatedbooking = await hospitaldoctorsbookingCollection.updateOne(filter,updatedDoc);
-//     res.send(updatedDoc);
-// })
   app.put('/hospitaldoctorsbooking/:id', async(req,res)=>{
     const id = req.params.id;
     const updated = req.body;
@@ -310,17 +309,6 @@ app.delete('/hospitaldoctorsbooking/:id', async(req,res) => {
 })
 
 
-// app.post('/hospitaldoctorsbooking',verifyJWT, async(req, res) => {
-//   const booking = req.body;
-//   console.log(booking);
-//   const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
-//   const exists = await hospitaldoctorsbookingCollection.findOne(query);
-//   if(exists){
-//       return res.send({success:false,booking:exists});
-//   }
-//   const result = await hospitaldoctorsbookingCollection.insertOne(booking);
-//  return res.send({success:true,result});
-// });
 
 app.post('/create-payment-intent', verifyJWT, async(req,res)=>{
   const service = req.body;
@@ -360,8 +348,6 @@ app.get('/hospitaldoctors/:id', async(req,res)=>{
   res.json(hotel);
 
 })
-
-
 
 
 // //   POST API TO ADD clock 
@@ -513,23 +499,6 @@ app.put('/user/admin/:email', verifyJWT, async (req, res) => {
   }
 
 })
-
-io.on("connection", (socket) => {
-  socket.emit("me", socket.id)
-
-  socket.on("disconnect", () => {
-      socket.broadcast.emit("callEnded")
-  })
-
-  socket.on("callUser", (data) => {
-      io.to(data.userToCall).emit("callUser", { signal: data.signalData, from: data.from, name: data.name })
-  })
-
-  socket.on("answerCall", (data) => {
-      io.to(data.to).emit("callAccepted", data.signal)
-  })
-})
-
 
 // payment gateway 
 app.post('/create-payment-intent', async (req, res) => {
