@@ -229,6 +229,12 @@ app.get('/medicinebooking/:id',verifyJWT, async(req, res) => {
    const booking = await medicinebookingCollection.findOne(query);
    res.send(booking);
 })
+app.get('/ambulance/:id', async(req, res) => {
+   const id = req.params.id;
+   const query = {_id: ObjectId(id)};
+   const booking = await ambulancecollection.findOne(query);
+   res.send(booking);
+})
 app.get('/hospitaldoctorsbooking/:id',verifyJWT, async(req, res) => {
    const id = req.params.id;
    const query = {_id: ObjectId(id)};
